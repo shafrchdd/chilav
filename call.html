@@ -330,8 +330,8 @@ function render(){
 document.getElementById("callAfter").onclick = ()=>{
   const p = get("VISIT_after");
   if (!p) return;
-  window.location.href = `tel:${p.phone}`;
-
+  AppInventor.setWebViewString("CALL:" + p.phone);
+  
   showConfirm((ok)=>{
     if(ok){
       set("VISIT_after", {...p, confirmed:true});
@@ -349,7 +349,7 @@ document.getElementById("callToday").onclick = () => {
 
 document.getElementById("callTomorrow").onclick = ()=>{
   const p = get("VISIT_tomorrow");
-  if(p) window.location.href = `tel:${p.phone}`;
+  if(p) AppInventor.setWebViewString("CALL:" + p.phone);
 };
 
 
@@ -379,5 +379,6 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
