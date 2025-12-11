@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Follow-Up Scheduler Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .glass {
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .modal-bg {
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(7px);
+    }
+    .bottom-sheet {
+      transition: transform .35s ease;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4">
+  <!-- DAY CARDS -->
+  <div class="space-y-5">
+
+    <!-- TODAY -->
+    <div class="glass rounded-2xl p-5 shadow-xl">
+      <h2 class="text-xl font-semibold text-indigo-800">ഇന്ന്</h2>
+      <div id="todayBox" class="mt-3 text-gray-700">Loading...</div>
+      <div class="flex gap-3 mt-6">
+        <button id="callToday" class="flex-1 bg-indigo-600 px-4 py-2 rounded-xl text-white font-semibold shadow-lg">
+          Call
+        </button>
+        <button onclick="openPicker('VISIT_today')" class="px-4 py-2 bg-indigo-200 rounded-xl text-indigo-800 font-semibold">
+          Set
+        </button>
+      </div>
+    </div>
+
+    <!-- TOMORROW -->
+    <div class="glass rounded-2xl p-5 shadow-xl">
+      <h2 class="text-xl font-semibold text-indigo-800">നാളെ</h2>
+      <div id="tomorrowBox" class="mt-3 text-gray-700">Loading...</div>
+      <div class="flex gap-3 mt-6">
+        <button id="callTomorrow" class="flex-1 bg-indigo-600 px-4 py-2 rounded-xl text-white font-semibold shadow-lg">
+          Call
+        </button>
+        <button onclick="openPicker('VISIT_tomorrow')" class="px-4 py-2 bg-indigo-200 rounded-xl text-indigo-800 font-semibold">
+          Set
+        </button>
+      </div>
+    </div>
+
+    <!-- DAY AFTER -->
+    <div class="glass rounded-2xl p-5 shadow-xl">
+      <h2 class="text-xl font-semibold text-indigo-800">മറ്റന്നാൾ</h2>
+      <div id="afterBox" class="mt-3 text-gray-700">Loading...</div>
+      <div class="flex gap-3 mt-6">
+        <button id="callAfter" class="flex-1 bg-indigo-600 px-4 py-2 rounded-xl text-white font-semibold shadow-lg">
+          Call & Confirm
+        </button>
+        <button onclick="openPicker('VISIT_after')" class="px-4 py-2 bg-indigo-200 rounded-xl text-indigo-800 font-semibold">
+          Set
+        </button>
+      </div>
+    </div>
+
+    <div id="setIndexBtnContainer"></div>
+
+
+  </div>
+
+  <!-- MODAL FOR CONFIRMATION -->
+  <div id="confirmModal" class="hidden fixed inset-0 modal-bg flex items-center justify-center">
+    <div class="bg-white p-6 rounded-2xl shadow-xl w-11/12 max-w-sm text-center">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Was the visit confirmed?</h3>
+      <div class="flex gap-3">
+        <button id="confirmYes" class="flex-1 bg-green-500 px-4 py-2 rounded-xl text-white font-semibold">
+          Yes
+        </button>
+        <button id="confirmNo" class="flex-1 bg-red-500 px-4 py-2 rounded-xl text-white font-semibold">
+          No
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM SHEET PERSON PICKER -->
+  <div id="pickerSheet" class="fixed inset-0 bg-black bg-opacity-40 hidden">
+    <div class="bottom-sheet bg-white rounded-t-3xl p-5 absolute bottom-0 left-0 right-0 max-h-[70%] overflow-y-auto transform translate-y-full" id="pickerPanel">
+
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="text-xl font-bold">Select Person</h2>
+
+      <button onclick="closePicker()"
+        class="text-gray-600 text-4xl font-bold hover:text-gray-900">
+        &times;
+      </button>
+    </div>
+
+      <div id="pickerList" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- INITIAL POPUP -->
+  <div id="initialPopup" class="fixed inset-0 modal-bg flex items-center justify-center hidden">
+    <div class="bg-white p-7 rounded-2xl shadow-xl text-center max-w-sm">
+      <h2 class="text-2xl font-bold mb-3 text-gray-900">Load Preset Data?</h2>
+      <p class="text-gray-600 mb-5">This will initialize your call rotation list.</p>
+      <button onclick="initPreset()" class="bg-indigo-600 w-full py-2 rounded-xl text-white font-semibold mb-3">Yes, load</button>
+      <button onclick="dismissInitial()" class="bg-gray-300 w-full py-2 rounded-xl text-gray-800 font-semibold">Skip</button>
+    </div>
+  </div>
+
+<script>
+/* ---------- RAW DATA ---------- */
+const peopleData = {
+  "തോട്ടുങ്ങൽ പള്ളിയാൽ": [
+    { name: "Afsal", phone: "9876543210" },
+    { name: "Rashid", phone: "9123456789" }
+  ],
+  "പള്ളിക്കുന്ന്": [
+    { name: "Niyas", phone: "9012345678" },
+    { name: "Shabna", phone: "8899001122" }
+  ],
+  "ഒടുവങ്കാട്": [
+    { name: "Shameer", phone: "9944667788" },
+    { name: "Jasmin", phone: "9090807060" }
+  ],
+  "കുറ്റിപ്പുളി": [
+    { name: "Riyas", phone: "9060708090" },
+    { name: "Haseena", phone: "9888777666" }
+  ],
+  "മന്തോണിക്കുന്ന്": [
+    { name: "Fayis", phone: "9998887776" },
+    { name: "Nisam", phone: "9345678123" }
+  ],
+  "നീലാണ്ടൻക്കുന്ന്": [
+    { name: "Salman", phone: "9870012345" },
+    { name: "Aysha", phone: "9765432109" }
+  ],
+  "മരുതംപാറ": [
+    { name: "Shahin", phone: "9034567890" },
+    { name: "Sameera", phone: "9156789043" }
+  ]
+};
+
+if (!localStorage.getItem("INDEX_ALREADY_SET")) {
+  localStorage.setItem("INDEX_ALREADY_SET", "false");
+}
+
+/* ---------- FLATTEN LIST ---------- */
+const flatList = Object.entries(peopleData)
+  .flatMap(([area, persons]) =>
+    persons.map(p => ({ ...p, area }))
+  );
+
+/* ---------- LOCAL STORAGE ---------- */
+const get = (k, def=null) => {
+  const v = localStorage.getItem(k);
+  if (v === null) return def;
+  try {
+    return JSON.parse(v);
+  } catch {
+    return v; // fallback
+  }
+};
+
+const set = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+
+/* ---------- INITIAL POPUP ---------- */
+if (!get("INIT_DONE")) {
+  document.getElementById("initialPopup").classList.remove("hidden");
+}
+
+function initPreset(){
+  set("CURRENT_INDEX", 0);
+  set("VISIT_today", null);
+  set("VISIT_tomorrow", null);
+  set("VISIT_after", null);
+  set("INIT_DONE", true);
+  document.getElementById("initialPopup").classList.add("hidden");
+  assignDayAfter();
+  render();
+}
+
+function dismissInitial(){
+  set("INIT_DONE", true);
+  document.getElementById("initialPopup").classList.add("hidden");
+  assignDayAfter();
+  render();
+}
+
+/* ---------- PICKER SYSTEM ---------- */
+let pickerTarget = null;
+
+function openPicker(target){
+  pickerTarget = target;
+  const sheet = document.getElementById("pickerSheet");
+  const panel = document.getElementById("pickerPanel");
+  const listDiv = document.getElementById("pickerList");
+
+  sheet.classList.remove("hidden");
+  setTimeout(()=> panel.style.transform = "translateY(0%)", 10);
+
+  listDiv.innerHTML = "";
+flatList.forEach((p, i) => {
+  const row = document.createElement("div");
+  row.className = "p-3 bg-gray-100 rounded-xl shadow-sm hover:bg-gray-200 cursor-pointer";
+
+  row.innerHTML = `
+    <div class="flex items-center justify-between">
+      <div>
+        <b>${i + 1}. ${p.name}</b> (${p.phone})
+        <div class="text-sm text-gray-600">${p.area}</div>
+      </div>
+    </div>
+  `;
+
+row.onclick = () => {
+    if (pickerTarget === "SET_INDEX") {
+        set("CURRENT_INDEX", i);   
+        localStorage.setItem("INDEX_ALREADY_SET", "true"); // 🔥 this hides button forever
+        alert("Current index set to: " + (i + 1));
+    } else {
+        set(pickerTarget, p);
+    }
+  closePicker();
+  render();
+};
+
+
+  listDiv.appendChild(row);
+});
+
+}
+
+function closePicker(){
+  const panel = document.getElementById("pickerPanel");
+  panel.style.transform = "translateY(100%)";
+  setTimeout(()=> document.getElementById("pickerSheet").classList.add("hidden"), 300);
+}
+
+/* ---------- CONFIRMATION MODAL ---------- */
+function showConfirm(cb){
+  const mod = document.getElementById("confirmModal");
+  mod.classList.remove("hidden");
+
+  document.getElementById("confirmYes").onclick = ()=>{
+    mod.classList.add("hidden");
+    cb(true);
+  };
+  document.getElementById("confirmNo").onclick = ()=>{
+    mod.classList.add("hidden");
+    cb(false);
+  };
+}
+
+/* ---------- NEXT PERSON LOOP ---------- */
+function getNextPerson(){
+  let index = get("CURRENT_INDEX", 0);
+  if (index >= flatList.length) index = 0;
+  const p = flatList[index];
+  set("CURRENT_INDEX", index + 1);
+  return p;
+}
+
+/* ---------- ASSIGN DAY AFTER ---------- */
+function assignDayAfter(){
+  if (!get("VISIT_after")){
+    set("VISIT_after", getNextPerson());
+  }
+}
+
+/* ---------- RENDER ---------- */
+function render(){
+    function fill(id, data){
+      if (!data) {
+        document.getElementById(id).innerHTML = "Not set";
+        return;
+      }
+
+      // find serial number
+      const serial = flatList.findIndex(p =>
+        p.name === data.name &&
+        p.phone === data.phone &&
+        p.area === data.area
+      ) + 1;
+
+      document.getElementById(id).innerHTML = `
+        <div class="">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-500 text-sm">നമ്പർ</span>
+            <span class="font-semibold text-gray-800">${serial}</span>
+          </div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-500 text-sm">പേര്</span>
+            <span class="font-semibold text-gray-800">${data.name}</span>
+          </div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-500 text-sm">ഫോൺ</span>
+            <span class="font-semibold text-gray-800">${data.phone}</span>
+          </div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-500 text-sm">ഏരിയ</span>
+            <span class="font-semibold text-gray-800 text-xs">${data.area}</span>
+          </div>
+          <div class="flex justify-between items-center mt-3">
+            <span class="text-gray-500 text-sm">Status</span>
+            <span class="font-semibold px-2 py-1 rounded-full text-white text-xs
+              ${data.confirmed ? "bg-green-500" : "bg-yellow-500"}">
+              ${data.confirmed ? "Confirmed" : "Pending"}
+            </span>
+          </div>
+        </div>
+
+      `;
+    }
+
+
+  fill("todayBox", get("VISIT_today"));
+  fill("tomorrowBox", get("VISIT_tomorrow"));
+  fill("afterBox", get("VISIT_after"));
+}
+
+/* ---------- BUTTON LOGIC ---------- */
+document.getElementById("callAfter").onclick = ()=>{
+  const p = get("VISIT_after");
+  if (!p) return;
+  window.location.href = `tel:${p.phone}`;
+
+  showConfirm((ok)=>{
+    if(ok){
+      set("VISIT_after", {...p, confirmed:true});
+    } else {
+      set("VISIT_after", getNextPerson());
+    }
+    render();
+  });
+};
+
+document.getElementById("callToday").onclick = ()=>{
+  const p = get("VISIT_today");
+  if(p) window.location.href = `tel:${p.phone}`;
+};
+
+document.getElementById("callTomorrow").onclick = ()=>{
+  const p = get("VISIT_tomorrow");
+  if(p) window.location.href = `tel:${p.phone}`;
+};
+
+
+function renderSetIndexButton() {
+  if (localStorage.getItem("INDEX_ALREADY_SET") !== "true") {
+    document.getElementById("setIndexBtnContainer").innerHTML = `
+      <button onclick="openPicker('SET_INDEX')" 
+        class="w-full mt-4 bg-yellow-400 px-4 py-2 rounded-xl text-gray-900 font-semibold shadow">
+        Set Current Index
+      </button>
+    `;
+  } else {
+    document.getElementById("setIndexBtnContainer").innerHTML = "";
+  }
+}
+
+
+renderSetIndexButton();
+if (!get("INIT_DONE")) {
+  document.getElementById("initialPopup").classList.remove("hidden");
+} else {
+  assignDayAfter();
+  render();
+}
+
+</script>
+
+</body>
+</html>
