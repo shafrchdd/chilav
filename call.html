@@ -177,14 +177,13 @@ if (!get("INIT_DONE")) {
 }
 
 function makeCall(phone) {
-  if (window.Niotron && window.Niotron.setWebViewString) {
-    window.Niotron.setWebViewString("CALL:" + phone);
+  if (window.WebViewInterface && window.WebViewInterface.postMessage) {
+    window.WebViewInterface.postMessage("CALL:" + phone);
     return;
   }
-
-  // Browser fallback for testing on desktop
   window.location.href = "tel:" + phone;
 }
+
 
 
 function initPreset(){
@@ -389,6 +388,7 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
 
