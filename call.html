@@ -176,6 +176,17 @@ if (!get("INIT_DONE")) {
   document.getElementById("initialPopup").classList.remove("hidden");
 }
 
+function makeCall(phone) {
+  // Niotron WebView message bridge
+  if (window.Niotron && Niotron.sendMessage) {
+    Niotron.sendMessage("CALL:" + phone);
+    return;
+  }
+
+  // Browser fallback
+  window.location.href = "tel:" + phone;
+}
+
 function initPreset(){
   set("CURRENT_INDEX", 0);
   set("VISIT_today", null);
@@ -329,8 +340,7 @@ function render(){
 /* ---------- BUTTON LOGIC ---------- */
 document.getElementById("callAfter").onclick = ()=>{
   const p = get("VISIT_after");
-  if (!p) return;
-  AppInventor.setWebViewString("CALL:" + p.phone);
+  if (p) makeCall(p.phone);
   
   showConfirm((ok)=>{
     if(ok){
@@ -344,12 +354,12 @@ document.getElementById("callAfter").onclick = ()=>{
 
 document.getElementById("callToday").onclick = () => {
   const p = get("VISIT_today");
-  if(p) AppInventor.setWebViewString("CALL:" + p.phone);
+  if (p) makeCall(p.phone);
 };
 
 document.getElementById("callTomorrow").onclick = ()=>{
   const p = get("VISIT_tomorrow");
-  if(p) AppInventor.setWebViewString("CALL:" + p.phone);
+  if (p) makeCall(p.phone);
 };
 
 
@@ -379,6 +389,7 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
 
