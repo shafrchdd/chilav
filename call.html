@@ -342,9 +342,9 @@ document.getElementById("callAfter").onclick = ()=>{
   });
 };
 
-document.getElementById("callToday").onclick = ()=>{
+document.getElementById("callToday").onclick = () => {
   const p = get("VISIT_today");
-  if(p) window.location.href = `tel:${p.phone}`;
+  if(p) AppInventor.setWebViewString("CALL:" + p.phone);
 };
 
 document.getElementById("callTomorrow").onclick = ()=>{
@@ -379,4 +379,5 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
