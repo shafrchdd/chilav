@@ -177,11 +177,7 @@ if (!get("INIT_DONE")) {
 }
 
 function makeCall(phone) {
-  if (window.WebViewInterface && window.WebViewInterface.postMessage) {
-    window.WebViewInterface.postMessage("CALL:" + phone);
-    return;
-  }
-  window.location.href = "tel:" + phone;
+  console.log("CALL:" + phone);
 }
 
 
@@ -388,6 +384,7 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
 
