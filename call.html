@@ -147,36 +147,6 @@ const peopleData = {
     { name: "Sameera", phone: "9156789043" }
   ]
 };
-
-if (!get("LAST_ACTIVE_DATE")) {
-  set("LAST_ACTIVE_DATE", getTodayKey());
-}
-
-function getTodayKey() {
-  const d = new Date();
-  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
-}
-
-function rotateIfNewDay() {
-  const todayDate = getTodayKey();
-  const lastDate = get("LAST_ACTIVE_DATE");
-
-  // first run safety
-  if (!lastDate) {
-    set("LAST_ACTIVE_DATE", todayDate);
-    return;
-  }
-
-  if (lastDate === todayDate) return; // same day
-
-  console.log("🔄 New day detected, rotating...");
-
-  set("VISIT_today", get("VISIT_tomorrow"));
-  set("VISIT_tomorrow", get("VISIT_after"));
-  set("VISIT_after", getNextPerson());
-
-  set("LAST_ACTIVE_DATE", todayDate);
-}
   
 if (!localStorage.getItem("INDEX_ALREADY_SET")) {
   localStorage.setItem("INDEX_ALREADY_SET", "false");
@@ -210,7 +180,35 @@ function makeCall(phone) {
   console.log("CALL:" + phone);
 }
 
+function getTodayKey() {
+  const d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
+}
 
+if (!get("LAST_ACTIVE_DATE")) {
+  set("LAST_ACTIVE_DATE", getTodayKey());
+}
+
+function rotateIfNewDay() {
+  const todayDate = getTodayKey();
+  const lastDate = get("LAST_ACTIVE_DATE");
+
+  // first run safety
+  if (!lastDate) {
+    set("LAST_ACTIVE_DATE", todayDate);
+    return;
+  }
+
+  if (lastDate === todayDate) return; // same day
+
+  console.log("🔄 New day detected, rotating...");
+
+  set("VISIT_today", get("VISIT_tomorrow"));
+  set("VISIT_tomorrow", get("VISIT_after"));
+  set("VISIT_after", getNextPerson());
+
+  set("LAST_ACTIVE_DATE", todayDate);
+}
 
 function initPreset(){
   set("CURRENT_INDEX", 0);
@@ -417,6 +415,7 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
 
