@@ -258,7 +258,7 @@ flatList.forEach((p, i) => {
 
 row.onclick = () => {
     if (pickerTarget === "SET_INDEX") {
-        set("CURRENT_INDEX", i);   
+        set("CURRENT_INDEX", (i + 1));   
         localStorage.setItem("INDEX_ALREADY_SET", "true"); // 🔥 this hides button forever
         alert("Current index set to: " + (i + 1));
     } else {
@@ -434,6 +434,7 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
 
