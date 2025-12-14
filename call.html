@@ -158,23 +158,25 @@ function getTodayKey() {
 }
 
 function rotateIfNewDay() {
-  const lastDate = get("LAST_ACTIVE_DATE");
   const todayDate = getTodayKey();
+  const lastDate = get("LAST_ACTIVE_DATE");
 
-  if (lastDate === todayDate) return; // same day, do nothing
+  // first run safety
+  if (!lastDate) {
+    set("LAST_ACTIVE_DATE", todayDate);
+    return;
+  }
 
-  // 🔄 rotate
-  const oldToday = get("VISIT_today");
-  const oldTomorrow = get("VISIT_tomorrow");
-  const oldAfter = get("VISIT_after");
+  if (lastDate === todayDate) return; // same day
 
-  set("VISIT_today", oldTomorrow);
-  set("VISIT_tomorrow", oldAfter);
+  console.log("🔄 New day detected, rotating...");
+
+  set("VISIT_today", get("VISIT_tomorrow"));
+  set("VISIT_tomorrow", get("VISIT_after"));
   set("VISIT_after", getNextPerson());
 
   set("LAST_ACTIVE_DATE", todayDate);
 }
-
   
 if (!localStorage.getItem("INDEX_ALREADY_SET")) {
   localStorage.setItem("INDEX_ALREADY_SET", "false");
@@ -415,6 +417,7 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
 
