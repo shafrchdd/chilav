@@ -379,12 +379,31 @@ document.getElementById("callAfter").onclick = ()=>{
 
 document.getElementById("callToday").onclick = () => {
   const p = get("VISIT_today");
-  if (p) makeCall(p.phone);
+  if (!p) return;
+
+  makeCall(p.phone);
+
+  showConfirm((ok) => {
+    if (ok) {
+      set("VISIT_today", { ...p, confirmed: true });
+    } 
+    render();
+  });
 };
 
-document.getElementById("callTomorrow").onclick = ()=>{
+
+document.getElementById("callTomorrow").onclick = () => {
   const p = get("VISIT_tomorrow");
-  if (p) makeCall(p.phone);
+  if (!p) return;
+
+  makeCall(p.phone);
+
+  showConfirm((ok) => {
+    if (ok) {
+      set("VISIT_tomorrow", { ...p, confirmed: true });
+    }
+    render();
+  });
 };
 
 
@@ -415,6 +434,7 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
 
