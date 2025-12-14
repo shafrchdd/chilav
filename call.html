@@ -148,6 +148,30 @@ const peopleData = {
   ]
 };
 
+function getTodayKey() {
+  const d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
+}
+
+function rotateIfNewDay() {
+  const lastDate = get("LAST_ACTIVE_DATE");
+  const todayDate = getTodayKey();
+
+  if (lastDate === todayDate) return; // same day, do nothing
+
+  // 🔄 rotate
+  const oldToday = get("VISIT_today");
+  const oldTomorrow = get("VISIT_tomorrow");
+  const oldAfter = get("VISIT_after");
+
+  set("VISIT_today", oldTomorrow);
+  set("VISIT_tomorrow", oldAfter);
+  set("VISIT_after", getNextPerson());
+
+  set("LAST_ACTIVE_DATE", todayDate);
+}
+
+  
 if (!localStorage.getItem("INDEX_ALREADY_SET")) {
   localStorage.setItem("INDEX_ALREADY_SET", "false");
 }
@@ -188,6 +212,7 @@ function initPreset(){
   set("VISIT_tomorrow", null);
   set("VISIT_after", null);
   set("INIT_DONE", true);
+  set("LAST_ACTIVE_DATE", getTodayKey());
   document.getElementById("initialPopup").classList.add("hidden");
   assignDayAfter();
   render();
@@ -195,6 +220,7 @@ function initPreset(){
 
 function dismissInitial(){
   set("INIT_DONE", true);
+  set("LAST_ACTIVE_DATE", getTodayKey());
   document.getElementById("initialPopup").classList.add("hidden");
   assignDayAfter();
   render();
@@ -376,6 +402,7 @@ renderSetIndexButton();
 if (!get("INIT_DONE")) {
   document.getElementById("initialPopup").classList.remove("hidden");
 } else {
+  rotateIfNewDay();
   assignDayAfter();
   render();
 }
@@ -384,6 +411,7 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
 
