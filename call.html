@@ -296,13 +296,25 @@ function showConfirm(cb){
 }
 
 /* ---------- NEXT PERSON LOOP ---------- */
-function getNextPerson(){
-  let index = get("CURRENT_INDEX", 0);
-  if (index >= flatList.length) index = 0;
-  const p = flatList[index];
+function getNextPerson() {
+  let index = get("CURRENT_INDEX", 1);
+
+  // convert to 0-based for array access
+  let arrayIndex = index - 1;
+
+  if (arrayIndex >= flatList.length) {
+    arrayIndex = 0;
+    index = 1;
+  }
+
+  const p = flatList[arrayIndex];
+
+  // move to next (still 1-based)
   set("CURRENT_INDEX", index + 1);
+
   return p;
 }
+
 
 /* ---------- ASSIGN DAY AFTER ---------- */
 function assignDayAfter(){
@@ -434,6 +446,7 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
 
