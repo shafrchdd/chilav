@@ -257,11 +257,14 @@ flatList.forEach((p, i) => {
   `;
 
 row.onclick = () => {
-    if (pickerTarget === "SET_INDEX") {
-        set("CURRENT_INDEX", i + 1); 
-        localStorage.setItem("INDEX_ALREADY_SET", "true"); // 🔥 this hides button forever
-        alert("Current index set to: " + (i + 1));
-    } else {
+if (pickerTarget === "SET_INDEX") {
+  set("CURRENT_INDEX", i + 1);
+
+  set("VISIT_after", flatList[i]);
+
+  localStorage.setItem("INDEX_ALREADY_SET", "true");
+  alert("Current index set to: " + (i + 1));
+} else {
         set(pickerTarget, p);
     }
   closePicker();
@@ -318,7 +321,7 @@ function getNextPerson() {
 
 /* ---------- ASSIGN DAY AFTER ---------- */
 function assignDayAfter(){
-  if (!get("VISIT_after")){
+  if (!get("VISIT_after") && !get("INDEX_ALREADY_SET")) {
     set("VISIT_after", getNextPerson());
   }
 }
@@ -446,6 +449,7 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
 
