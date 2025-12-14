@@ -148,6 +148,10 @@ const peopleData = {
   ]
 };
 
+if (!get("LAST_ACTIVE_DATE")) {
+  set("LAST_ACTIVE_DATE", getTodayKey());
+}
+
 function getTodayKey() {
   const d = new Date();
   return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
@@ -411,6 +415,7 @@ if (!get("INIT_DONE")) {
 
 </body>
 </html>
+
 
 
 
